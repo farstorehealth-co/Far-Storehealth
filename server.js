@@ -1,7 +1,6 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const path = require('path');
 
 dotenv.config();
 
@@ -11,12 +10,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
+// Import routes
 const auditRoutes = require('./routes/audit');
 const authRoutes = require('./routes/auth');
 
+// Use routes
 app.use('/api/audits', auditRoutes);
 app.use('/api/auth', authRoutes);
 
+// Health check
 app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'ok', 
@@ -25,10 +27,19 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Root
 app.get('/', (req, res) => {
   res.json({ 
     app: 'Store Health Audit',
     version: '1.0.0'
+  });
+});
+
+// Error handler
+app.use((err, req, res, next) => {
+  console.error('Error:', err);
+  res.status(500).json({ 
+    error: err.message || 'Internal server error'
   });
 });
 
