@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require('path');
 
 dotenv.config();
 
@@ -10,15 +11,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
-// Import routes
 const auditRoutes = require('./routes/audit');
 const authRoutes = require('./routes/auth');
+const monitoringRoutes = require('./routes/monitoring');
 
-// Use routes
 app.use('/api/audits', auditRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/monitoring', monitoringRoutes);
 
-// Health check
 app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'ok', 
@@ -27,7 +27,6 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Root
 app.get('/', (req, res) => {
   res.json({ 
     app: 'Store Health Audit',
@@ -35,17 +34,23 @@ app.get('/', (req, res) => {
   });
 });
 
-// Error handler
 app.use((err, req, res, next) => {
   console.error('Error:', err);
   res.status(500).json({ 
-    error: err.message || 'Internal server error'
+    error: err.message || 'Internal server error',
+    timestamp: new Date()
   });
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Running on port ${PORT}`);
+  console.log(`
+╔════════════════════════════════════════╗
+║  Store Health Audit API                ║
+║  Running on port ${PORT}                   ║
+║  http://localhost:${PORT}                 ║
+╚════════════════════════════════════════╝
+  `);
 });
 
 module.exports = app;
